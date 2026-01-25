@@ -7,13 +7,15 @@ export default function Login({ onLogin }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/login", {
+      const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,13 +29,13 @@ export default function Login({ onLogin }) {
 
       const data = await res.json();
 
-      // 🔐 store token & role
+      // 🔐 store auth details
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("role", data.role);
 
-      onLogin(); // redirect to dashboard
+      onLogin();
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -78,10 +80,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "#112f4d",
     backgroundImage: `url(${ba1})`,
     backgroundSize: "cover",
-   
   },
   card: {
     width: "320px",

@@ -10,7 +10,7 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(null); // ⬅️ IMPORTANT
   const [role, setRole] = useState(null);
   const [activePage, setActivePage] = useState("invoice");
 
@@ -23,19 +23,35 @@ function App() {
     "Mesh charges Rs 80 per sqft is applicable.",
   ]);
 
-  // 🔐 CHECK LOGIN ON APP LOAD
+  // 🔐 VERIFY LOGIN ON APP LOAD
   useEffect(() => {
     const token = localStorage.getItem("token");
     const savedRole = localStorage.getItem("role");
 
-    if (token && savedRole) {
-      setLoggedIn(true);
-      setRole(savedRole);
-    } else {
-      localStorage.clear();
+    if (!token) {
       setLoggedIn(false);
       setRole(null);
+      return;
     }
+
+    fetch(`${process.env.REACT_APP_API_URL}/api/auth/verify`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Invalid token");
+        return res.json();
+      })
+      .then((data) => {
+        setLoggedIn(true);
+        setRole(savedRole);
+      })
+      .catch(() => {
+        localStorage.clear();
+        setLoggedIn(false);
+        setRole(null);
+      });
   }, []);
 
   // 🔓 AFTER SUCCESSFUL LOGIN
@@ -50,6 +66,11 @@ function App() {
     setLoggedIn(false);
     setRole(null);
   };
+
+  // ⏳ WAIT FOR AUTH CHECK
+  if (loggedIn === null) {
+    return <div style={{ padding: "20px" }}>Loading...</div>;
+  }
 
   // 🔒 FORCE LOGIN FIRST
   if (!loggedIn) {
@@ -68,18 +89,14 @@ function App() {
         />
 
         <div style={{ flex: 1, padding: "20px" }}>
-          {activePage === "invoice" && (
-            <InvoicePage terms={terms} />
-          )}
+          {activePage === "invoice" && <InvoicePage terms={terms} />}
 
           {activePage === "terms" && (
             <TermsPage terms={terms} setTerms={setTerms} />
           )}
 
           {/* 👑 ADMIN ONLY */}
-          {activePage === "gst" && role === "admin" && (
-            <GSTReportPage />
-          )}
+          {activePage === "gst" && role === "admin" && <GSTReportPage />}
         </div>
       </div>
     </>
