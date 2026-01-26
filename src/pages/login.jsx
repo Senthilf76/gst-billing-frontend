@@ -21,19 +21,17 @@ export default function Login({ onLogin }) {
     }
 
     try {
-      // ✅ REQUIRED for FastAPI OAuth2PasswordRequestForm
+      // ✅ EXACT MATCH WITH SWAGGER (OAuth2PasswordRequestForm)
       const formData = new URLSearchParams();
-      formData.append("username", username.trim());
+      formData.append("username", username);
       formData.append("password", password);
       formData.append("grant_type", "password");
-      formData.append("scope", "");
-      formData.append("client_id", "");
-      formData.append("client_secret", "");
 
       const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
+          "Accept": "application/json",
         },
         body: formData.toString(),
       });
@@ -48,7 +46,7 @@ export default function Login({ onLogin }) {
         );
       }
 
-      // ✅ Save auth
+      // ✅ Save auth details
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("role", data.role);
 
