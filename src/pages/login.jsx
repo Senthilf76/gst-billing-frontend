@@ -21,15 +21,17 @@ export default function Login({ onLogin }) {
     }
 
     try {
+      // ✅ FastAPI expects form-urlencoded data
+      const formData = new URLSearchParams();
+      formData.append("username", username.trim());
+      formData.append("password", password);
+
       const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify({
-          username: username.trim(),
-          password: password,
-        }),
+        body: formData.toString(),
       });
 
       const data = await res.json();
