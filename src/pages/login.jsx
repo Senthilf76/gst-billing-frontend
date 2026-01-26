@@ -21,42 +21,31 @@ export default function Login({ onLogin }) {
     }
 
     try {
-      // ✅ EXACT MATCH WITH FASTAPI SWAGGER (OAuth2PasswordRequestForm)
-      const formData = new URLSearchParams();
-      formData.append("username", username);
-      formData.append("password", password);
-      formData.append("grant_type", "password");
-      formData.append("scope", ""); // 🔴 REQUIRED
-
       const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/json",
           "Accept": "application/json",
         },
-        body: formData.toString(),
+        body: JSON.stringify({
+          username,
+          password,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(
-          typeof data.detail === "string"
-            ? data.detail
-            : "Invalid username or password"
-        );
+        throw new Error(data.detail || "Invalid username or password");
       }
 
-      // ✅ Save authentication details
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("role", data.role);
 
       onLogin();
     } catch (err) {
-      console.error("Login error:", err);
-      setError(
-        typeof err.message === "string" ? err.message : "Login failed"
-      );
+      console.error(err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
