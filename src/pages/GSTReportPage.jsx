@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 export default function GSTReportPage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
@@ -19,7 +21,7 @@ export default function GSTReportPage() {
       setLoading(true);
 
       const res = await axios.get(
-        `http://127.0.0.1:8000/api/gst/monthly?year=${year}&month=${month}`,
+        `${API_BASE_URL}/api/gst/monthly?year=${year}&month=${month}`,
         {
           headers: {
             token: localStorage.getItem("token"),
@@ -95,7 +97,7 @@ export default function GSTReportPage() {
         </table>
       )}
 
-      {/* ✅ INVOICE LIST (SAFE MAP) */}
+      {/* ✅ INVOICE LIST */}
       {report.invoices.length > 0 && (
         <table border="1" cellPadding="8">
           <thead>

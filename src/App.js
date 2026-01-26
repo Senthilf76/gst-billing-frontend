@@ -10,9 +10,11 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(null); // ⬅️ IMPORTANT
+  const [loggedIn, setLoggedIn] = useState(null); // null = checking
   const [role, setRole] = useState(null);
   const [activePage, setActivePage] = useState("invoice");
+
+  const API_URL = process.env.REACT_APP_API_URL;
 
   // 🔑 TERMS STORED GLOBALLY
   const [terms, setTerms] = useState([
@@ -28,13 +30,16 @@ function App() {
     const token = localStorage.getItem("token");
     const savedRole = localStorage.getItem("role");
 
-    if (!token) {
+    // ❌ Missing env or auth → force login
+    if (!API_URL || !token || !savedRole || savedRole === "null") {
+      localStorage.clear();
       setLoggedIn(false);
       setRole(null);
       return;
     }
 
-    fetch(`${process.env.REACT_APP_API_URL}/api/auth/verify`, {
+    // ✅ Verify token with backend
+    fetch(`${API_URL}/api/auth/verify`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -43,7 +48,7 @@ function App() {
         if (!res.ok) throw new Error("Invalid token");
         return res.json();
       })
-      .then((data) => {
+      .then(() => {
         setLoggedIn(true);
         setRole(savedRole);
       })
@@ -52,12 +57,13 @@ function App() {
         setLoggedIn(false);
         setRole(null);
       });
-  }, []);
+  }, [API_URL]);
 
   // 🔓 AFTER SUCCESSFUL LOGIN
   const handleLogin = () => {
+    const savedRole = localStorage.getItem("role");
     setLoggedIn(true);
-    setRole(localStorage.getItem("role"));
+    setRole(savedRole);
   };
 
   // 🚪 LOGOUT
@@ -96,7 +102,9 @@ function App() {
           )}
 
           {/* 👑 ADMIN ONLY */}
-          {activePage === "gst" && role === "admin" && <GSTReportPage />}
+          {activePage === "gst" && role === "admin" && (
+            <GSTReportPage />
+          )}
         </div>
       </div>
     </>

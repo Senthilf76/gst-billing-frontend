@@ -1,13 +1,14 @@
 import { useState } from "react";
 import ba1 from "../assets/ba1.png";
 
+const API_URL =
+  process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+
 export default function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const API_URL = process.env.REACT_APP_API_URL;
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -20,21 +21,30 @@ export default function Login({ onLogin }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username: username.trim(),
+          password: password, // DO NOT trim password
+        }),
       });
 
-      if (!res.ok) {
-        throw new Error("Invalid username or password");
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error("Server error. Try again.");
       }
 
-      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || "Invalid username or password");
+      }
 
-      // 🔐 store auth details
+      // ✅ Save auth
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("role", data.role);
 
       onLogin();
     } catch (err) {
+      console.error("Login error:", err);
       setError(err.message || "Login failed");
     } finally {
       setLoading(false);
