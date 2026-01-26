@@ -14,7 +14,10 @@ export default function Login({ onLogin }) {
     setError("");
     setLoading(true);
 
-    // ✅ SAFETY CHECK
+    // 🔍 DEBUG (CRITICAL)
+    alert("API URL = " + API_URL);
+    console.log("API URL =", API_URL);
+
     if (!API_URL) {
       setError("API not configured");
       setLoading(false);
@@ -24,6 +27,7 @@ export default function Login({ onLogin }) {
     try {
       const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
+        mode: "cors", // 👈 explicit for clarity
         headers: {
           "Content-Type": "application/json",
         },
@@ -44,7 +48,6 @@ export default function Login({ onLogin }) {
         throw new Error(data.detail || "Invalid username or password");
       }
 
-      // ✅ Save auth
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("role", data.role);
 
