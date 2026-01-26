@@ -1,8 +1,7 @@
 import { useState } from "react";
 import ba1 from "../assets/ba1.png";
 
-const API_URL =
-  process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+const API_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function Login({ onLogin }) {
   const [username, setUsername] = useState("");
@@ -15,6 +14,13 @@ export default function Login({ onLogin }) {
     setError("");
     setLoading(true);
 
+    // ✅ SAFETY CHECK
+    if (!API_URL) {
+      setError("API not configured");
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
@@ -23,7 +29,7 @@ export default function Login({ onLogin }) {
         },
         body: JSON.stringify({
           username: username.trim(),
-          password: password, // DO NOT trim password
+          password: password,
         }),
       });
 
