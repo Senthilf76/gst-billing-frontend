@@ -21,10 +21,14 @@ export default function Login({ onLogin }) {
     }
 
     try {
-      // ✅ FastAPI expects form-urlencoded data
+      // ✅ REQUIRED for FastAPI OAuth2PasswordRequestForm
       const formData = new URLSearchParams();
       formData.append("username", username.trim());
       formData.append("password", password);
+      formData.append("grant_type", "password");
+      formData.append("scope", "");
+      formData.append("client_id", "");
+      formData.append("client_secret", "");
 
       const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
@@ -37,7 +41,11 @@ export default function Login({ onLogin }) {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.detail || "Invalid username or password");
+        throw new Error(
+          typeof data.detail === "string"
+            ? data.detail
+            : "Invalid username or password"
+        );
       }
 
       // ✅ Save auth
@@ -47,7 +55,9 @@ export default function Login({ onLogin }) {
       onLogin();
     } catch (err) {
       console.error("Login error:", err);
-      setError(err.message || "Login failed");
+      setError(
+        typeof err.message === "string" ? err.message : "Login failed"
+      );
     } finally {
       setLoading(false);
     }
