@@ -76,7 +76,7 @@ export default function InvoiceActions({
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(13);
-    doc.text("BILL-Details", 190, 18, { align: "right" });
+    doc.text("QUOTATION", 190, 18, { align: "right" });
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
@@ -122,6 +122,7 @@ export default function InvoiceActions({
 
     let y = doc.lastAutoTable.finalY + 10;
 
+    // ================= TOTALS =================
     doc.setFontSize(9);
     doc.text("Subtotal :", 140, y);
     doc.text(summary.subtotal.toFixed(2), 190, y, { align: "right" }); y += 6;
@@ -137,6 +138,7 @@ export default function InvoiceActions({
     doc.text(summary.grandTotal.toFixed(2), 190, y, { align: "right" });
     doc.setFont("helvetica", "normal");
 
+    // ================= CUSTOMER DETAILS =================
     y += 14;
     doc.setFont("helvetica", "bold");
     doc.text("Customer Details", 14, y); y += 6;
@@ -146,6 +148,7 @@ export default function InvoiceActions({
     doc.text("Mobile : ************", 14, y); y += 6;
     doc.text("GST : ************", 14, y);
 
+    // ================= TERMS =================
     y += 12;
     doc.setFont("helvetica", "bold");
     doc.text("Terms & Conditions", 14, y); y += 6;
@@ -154,6 +157,36 @@ export default function InvoiceActions({
       doc.text(`${i + 1}. ${t}`, 14, y, { maxWidth: 120 });
       y += 6;
     });
+
+    // ================= FOOTER GREEN BOX =================
+    y += 10;
+
+    doc.setDrawColor(0, 128, 0);
+    doc.setLineWidth(1.2);
+    doc.rect(14, y, 180, 26);
+
+    doc.setFontSize(8);
+    doc.text(
+      "If you have any questions about this price quote, please contact",
+      105,
+      y + 8,
+      { align: "center" }
+    );
+
+    doc.text(
+      "[DRS Enterprises: 74185 66946, 74010 14854, 90436 31741 | MAIL : DRSenterprises@gmail.com ]",
+      105,
+      y + 14,
+      { align: "center" }
+    );
+
+    doc.setFont("helvetica", "bolditalic");
+    doc.text(
+      "Thank You For Your Business! contact - 6380897994 for website & billing design",
+      105,
+      y + 20,
+      { align: "center" }
+    );
 
     return doc;
   };
