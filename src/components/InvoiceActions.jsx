@@ -76,7 +76,7 @@ export default function InvoiceActions({
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(13);
-    doc.text("BILL", 190, 18, { align: "right" });
+    doc.text("QUOTATION", 190, 18, { align: "right" });
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
@@ -86,7 +86,7 @@ export default function InvoiceActions({
     doc.line(12, 44, 196, 44);
   };
 
-  // ================= PDF =================
+  // ================= PDF (PRINT READY) =================
   const downloadPDF = () => {
     const doc = new jsPDF("p", "mm", "a4");
 
@@ -120,14 +120,44 @@ export default function InvoiceActions({
       didDrawPage: () => drawHeader(doc, customer),
     });
 
-    doc.save(`${quotationNumber}.pdf`);
+    // ================= TOTALS =================
+    let y = doc.lastAutoTable.finalY + 10;
+
+    doc.setFontSize(9);
+    doc.text("Subtotal :", 140, y);
+    doc.text(summary.subtotal.toFixed(2), 190, y, { align: "right" }); y += 6;
+
+    doc.text("GST Total :", 140, y);
+    doc.text(summary.totalGST.toFixed(2), 190, y, { align: "right" }); y += 6;
+
+    doc.text("Transport :", 140, y);
+    doc.text(summary.transport.toFixed(2), 190, y, { align: "right" }); y += 8;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Grand Total :", 140, y);
+    doc.text(summary.grandTotal.toFixed(2), 190, y, { align: "right" });
+    doc.setFont("helvetica", "normal");
+
+    // ================= TERMS =================
+    y += 14;
+    doc.setFont("helvetica", "bold");
+    doc.text("Terms & Conditions", 14, y); y += 6;
+    doc.setFont("helvetica", "normal");
+
+    terms.forEach((t, i) => {
+      doc.text(`${i + 1}. ${t}`, 14, y, { maxWidth: 120 });
+      y += 6;
+    });
+
+    // ================= PRINT PDF =================
+    doc.autoPrint();
+    window.open(doc.output("bloburl"), "_blank");
   };
 
   return (
     <div className="actions no-print">
       <button onClick={saveInvoice}>Save</button>
-      <button onClick={downloadPDF}>Download PDF</button>
-      <button onClick={() => window.print()}>Print</button>
+      <button onClick={downloadPDF}>Print PDF</button>
       <button
         onClick={() => {
           localStorage.clear();
