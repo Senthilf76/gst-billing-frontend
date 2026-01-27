@@ -23,7 +23,7 @@ export default function InvoiceActions({
 
   const quotationNumber = quotationNo || generateQuotationNo();
 
-  // ================= SAVE =================
+  // ================= SAVE TO DATABASE =================
   const saveInvoice = async () => {
     try {
       await axios.post(
@@ -56,12 +56,12 @@ export default function InvoiceActions({
   };
 
   // ================= HEADER =================
-  const drawHeader = (doc, customer) => {
+  const drawHeader = (doc) => {
     doc.setDrawColor(0, 128, 0);
     doc.setLineWidth(1.5);
     doc.rect(8, 8, 194, 281);
 
-    doc.addImage(logo, "PNG", 14, 14, 32, 14);
+    doc.addImage(logo, "PNG", 14, 14, 30, 14);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
@@ -76,7 +76,7 @@ export default function InvoiceActions({
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(13);
-    doc.text("QUOTATION", 190, 18, { align: "right" });
+    doc.text("BILL-Details", 190, 18, { align: "right" });
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
@@ -86,11 +86,11 @@ export default function InvoiceActions({
     doc.line(12, 44, 196, 44);
   };
 
-  // ================= PDF (PRINT READY) =================
-  const downloadPDF = () => {
+  // ================= CREATE PDF =================
+  const createPDF = () => {
     const doc = new jsPDF("p", "mm", "a4");
 
-    drawHeader(doc, customer);
+    drawHeader(doc);
 
     autoTable(doc, {
       startY: 48,
@@ -117,10 +117,9 @@ export default function InvoiceActions({
         textColor: 255,
         fontStyle: "bold",
       },
-      didDrawPage: () => drawHeader(doc, customer),
+      didDrawPage: () => drawHeader(doc),
     });
 
-    // ================= TOTALS =================
     let y = doc.lastAutoTable.finalY + 10;
 
     doc.setFontSize(9);
@@ -138,18 +137,35 @@ export default function InvoiceActions({
     doc.text(summary.grandTotal.toFixed(2), 190, y, { align: "right" });
     doc.setFont("helvetica", "normal");
 
-    // ================= TERMS =================
     y += 14;
+    doc.setFont("helvetica", "bold");
+    doc.text("Customer Details", 14, y); y += 6;
+    doc.setFont("helvetica", "normal");
+    doc.text(`Name : ${customer.name}`, 14, y); y += 6;
+    doc.text(`Address : ${customer.address}`, 14, y, { maxWidth: 120 }); y += 10;
+    doc.text("Mobile : ************", 14, y); y += 6;
+    doc.text("GST : ************", 14, y);
+
+    y += 12;
     doc.setFont("helvetica", "bold");
     doc.text("Terms & Conditions", 14, y); y += 6;
     doc.setFont("helvetica", "normal");
-
     terms.forEach((t, i) => {
       doc.text(`${i + 1}. ${t}`, 14, y, { maxWidth: 120 });
       y += 6;
     });
 
-    // ================= PRINT PDF =================
+    return doc;
+  };
+
+  // ================= ACTIONS =================
+  const downloadPDF = () => {
+    const doc = createPDF();
+    doc.save(`${quotationNumber}.pdf`);
+  };
+
+  const printPDF = () => {
+    const doc = createPDF();
     doc.autoPrint();
     window.open(doc.output("bloburl"), "_blank");
   };
@@ -157,7 +173,8 @@ export default function InvoiceActions({
   return (
     <div className="actions no-print">
       <button onClick={saveInvoice}>Save</button>
-      <button onClick={downloadPDF}>Print PDF</button>
+      <button onClick={downloadPDF}>Download PDF</button>
+      <button onClick={printPDF}>Print PDF</button>
       <button
         onClick={() => {
           localStorage.clear();
