@@ -1,0 +1,123 @@
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.login-wrapper {
+  height: 100vh;
+  background: #f2f2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  width: 900px;
+  height: 680px;
+  background: white;
+  border-radius: 12px;
+  display: flex;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+/* LEFT */
+.login-left {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-left img {
+  width: 80%;
+}
+
+/* RIGHT */
+.login-right {
+  width: 50%;
+  padding: 50px;
+}
+
+.login-right h2 {
+  margin-bottom: 25px;
+  font-size: 28px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 20px;
+}
+
+.input-group input {
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.icon {
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.options {
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: #6caee0;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background: #5a9fd6;
+}
+
+.error {
+  color: red;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.create-account {
+  margin-top: 20px;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* SOCIAL */
+.social-login {
+  margin-top: 25px;
+  font-size: 14px;
+}
+
+.social-icons {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.social-icons button {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  border: none;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.fb { background: #3b5998; }
+.tw { background: #1da1f2; }
+.gg { background: #db4437; }

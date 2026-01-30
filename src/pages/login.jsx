@@ -1,5 +1,6 @@
 import { useState } from "react";
-import ba1 from "../assets/ba1.png";
+import "./login.css";
+import illustration from "../assets/login-illustration.jpg";
 
 const API_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -14,37 +15,20 @@ export default function Login({ onLogin }) {
     setError("");
     setLoading(true);
 
-    if (!API_URL) {
-      setError("API not configured");
-      setLoading(false);
-      return;
-    }
-
     try {
       const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || "Invalid username or password");
-      }
+      if (!res.ok) throw new Error(data.detail || "Invalid credentials");
 
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("role", data.role);
-
       onLogin();
     } catch (err) {
-      console.error(err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -52,71 +36,66 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <div style={styles.container}>
-      <form onSubmit={handleLogin} style={styles.card}>
-        <h2>Billing System Login</h2>
+    <div className="login-wrapper">
+      <div className="login-card">
+        
+        {/* LEFT SIDE */}
+        <div className="login-left">
+          <img src={illustration} alt="login" />
+        </div>
 
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          style={styles.input}
-        />
+        {/* RIGHT SIDE */}
+        <div className="login-right">
+          <h2>Sign up</h2>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={styles.input}
-        />
+          <form onSubmit={handleLogin}>
+            <div className="input-group">
+              <span className="icon">👤</span>
+              <input
+                type="text"
+                placeholder="Your Name"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
 
-        {error && <p style={styles.error}>{error}</p>}
+            <div className="input-group">
+              <span className="icon">🔒</span>
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-        <button type="submit" disabled={loading} style={styles.button}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+            <div className="options">
+              <label>
+                <input type="checkbox" /> Remember me
+              </label>
+            </div>
+
+            {error && <p className="error">{error}</p>}
+
+            <button className="login-btn" disabled={loading}>
+              {loading ? "Logging in..." : "Log in"}
+            </button>
+          </form>
+
+          <p className="create-account">Create an account</p>
+
+          <div className="social-login">
+            <span>Or login with</span>
+            <div className="social-icons">
+              <button className="fb">f</button>
+              <button className="tw">t</button>
+              <button className="gg">G</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    height: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundImage: `url(${ba1})`,
-    backgroundSize: "cover",
-  },
-  card: {
-    width: "320px",
-    padding: "25px",
-    background: "#fff",
-    borderRadius: "8px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
-  input: {
-    padding: "10px",
-    fontSize: "14px",
-  },
-  button: {
-    padding: "10px",
-    background: "#2563eb",
-    color: "#fff",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "15px",
-  },
-  error: {
-    color: "red",
-    fontSize: "13px",
-  },
-};
