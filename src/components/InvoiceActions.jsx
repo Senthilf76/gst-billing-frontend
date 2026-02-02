@@ -27,7 +27,7 @@ export default function InvoiceActions({
   const saveInvoice = async () => {
     try {
       await axios.post(
-        `${API_BASE_URL}/api/invoices`,
+        `${API_BASE_URL}/api/invoices/`,
         {
           quotation_no: quotationNumber,
           customer_name: customer.name || "NIL",
