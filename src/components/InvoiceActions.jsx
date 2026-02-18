@@ -76,7 +76,7 @@ export default function InvoiceActions({
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(13);
-    doc.text("Bill-details", 190, 18, { align: "right" });
+    doc.text("QUOTATION", 190, 18, { align: "right" });
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);

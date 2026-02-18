@@ -4,7 +4,6 @@ import InvoiceTable from "../components/InvoiceTable";
 import InvoiceSummary from "../components/InvoiceSummary";
 import InvoiceActions from "../components/InvoiceActions";
 import "../styles/invoice.css";
-
 export default function InvoicePage() {
   // 🔹 STEP CONTROL
   const [step, setStep] = useState(1); // 1 = Customer, 2 = Invoice
@@ -76,8 +75,11 @@ export default function InvoicePage() {
             customer={customer}
             terms={terms}
           />
+          
         </div>
+        
       )}
     </div>
+    
   );
 }

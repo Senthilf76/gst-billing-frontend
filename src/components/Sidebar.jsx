@@ -1,17 +1,31 @@
 export default function Sidebar({ role, active, setActive }) {
   return (
     <div style={styles.sidebar}>
+
+      {/* INVOICE */}
       <MenuItem
         label="Invoice"
         active={active === "invoice"}
         onClick={() => setActive("invoice")}
       />
-       <MenuItem
+
+      {/* TERMS */}
+      <MenuItem
         label="Terms & Conditions"
         active={active === "terms"}
         onClick={() => setActive("terms")}
       />
 
+      {/* 🔐 ADMIN ONLY BILL PAGE */}
+      {role === "admin" && (
+        <MenuItem
+          label="Bill"
+          active={active === "bill"}
+          onClick={() => setActive("bill")}
+        />
+      )}
+
+      {/* 🔐 ADMIN ONLY GST REPORT */}
       {role === "admin" && (
         <MenuItem
           label="GST Report"
@@ -19,6 +33,7 @@ export default function Sidebar({ role, active, setActive }) {
           onClick={() => setActive("gst")}
         />
       )}
+
     </div>
   );
 }

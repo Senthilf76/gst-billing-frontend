@@ -3,6 +3,7 @@ import "./App.css";
 
 import InvoicePage from "./pages/InvoicePage";
 import GSTReportPage from "./pages/GSTReportPage";
+import BillPage from "./pages/BillPage";   // ✅ ADD THIS IMPORT
 import TermsPage from "./components/TermsPage";
 import Login from "./pages/login";
 
@@ -14,7 +15,6 @@ function App() {
   const [role, setRole] = useState(null);
   const [activePage, setActivePage] = useState("invoice");
 
-  // ✅ CORRECT ENV VARIABLE
   const API_URL = process.env.REACT_APP_API_BASE_URL;
 
   const [terms, setTerms] = useState([
@@ -25,7 +25,9 @@ function App() {
     "Mesh charges Rs 80 per sqft is applicable.",
   ]);
 
-  // 🔐 VERIFY LOGIN ON APP LOAD
+  /* ==========================
+     🔐 VERIFY LOGIN ON APP LOAD
+  ========================== */
   useEffect(() => {
     const token = localStorage.getItem("token");
     const savedRole = localStorage.getItem("role");
@@ -89,13 +91,21 @@ function App() {
         />
 
         <div style={{ flex: 1, padding: "20px" }}>
+
+          {/* ✅ NORMAL INVOICE PAGE */}
           {activePage === "invoice" && <InvoicePage terms={terms} />}
 
+          {/* ✅ BILL PAGE (ADMIN ONLY) */}
+          {activePage === "bill" && role === "admin" && <BillPage />}
+
+          {/* ✅ TERMS */}
           {activePage === "terms" && (
             <TermsPage terms={terms} setTerms={setTerms} />
           )}
 
+          {/* ✅ GST REPORT ADMIN ONLY */}
           {activePage === "gst" && role === "admin" && <GSTReportPage />}
+
         </div>
       </div>
     </>
