@@ -6,7 +6,7 @@ import logo from "../assets/logo.png";
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function InvoiceActions({
-  rows,
+  rows = [],
   summary,
   customer,
   quotationNo,
@@ -23,7 +23,7 @@ export default function InvoiceActions({
 
   const quotationNumber = quotationNo || generateQuotationNo();
 
-  // ================= SAVE TO DATABASE =================
+  // ================= SAVE =================
   const saveInvoice = async () => {
     try {
       await axios.post(
@@ -90,8 +90,11 @@ export default function InvoiceActions({
   const createPDF = () => {
     const doc = new jsPDF("p", "mm", "a4");
 
+    const bottomLimit = 270;
+
     drawHeader(doc);
 
+    // ===== TABLE =====
     autoTable(doc, {
       startY: 48,
       margin: { left: 12, right: 12 },
@@ -122,47 +125,77 @@ export default function InvoiceActions({
 
     let y = doc.lastAutoTable.finalY + 10;
 
-    // ================= TOTALS =================
+    // ⭐ SMART PAGE BREAKER
+    const checkPage = (space = 10) => {
+      if (y + space > bottomLimit) {
+        doc.addPage();
+        drawHeader(doc);
+        y = 50;
+      }
+    };
+
+    // ===== TOTALS =====
     doc.setFontSize(9);
+
+    checkPage(20);
     doc.text("Subtotal :", 140, y);
-    doc.text(summary.subtotal.toFixed(2), 190, y, { align: "right" }); y += 6;
+    doc.text(summary.subtotal.toFixed(2), 190, y, { align: "right" });
+    y += 6;
 
     doc.text("GST Total :", 140, y);
-    doc.text(summary.totalGST.toFixed(2), 190, y, { align: "right" }); y += 6;
+    doc.text(summary.totalGST.toFixed(2), 190, y, { align: "right" });
+    y += 6;
 
     doc.text("Transport :", 140, y);
-    doc.text(summary.transport.toFixed(2), 190, y, { align: "right" }); y += 8;
+    doc.text(summary.transport.toFixed(2), 190, y, { align: "right" });
+    y += 8;
 
     doc.setFont("helvetica", "bold");
     doc.text("Grand Total :", 140, y);
     doc.text(summary.grandTotal.toFixed(2), 190, y, { align: "right" });
     doc.setFont("helvetica", "normal");
 
-    // ================= CUSTOMER DETAILS =================
+    // ===== CUSTOMER DETAILS =====
     y += 14;
+    checkPage(30);
+
     doc.setFont("helvetica", "bold");
-    doc.text("Customer Details", 14, y); y += 6;
+    doc.text("Customer Details", 14, y);
+    y += 6;
+
     doc.setFont("helvetica", "normal");
-    doc.text(`Name : ${customer.name}`, 14, y); y += 6;
-    doc.text(`Address : ${customer.address}`, 14, y, { maxWidth: 120 }); y += 10;
-    doc.text("Mobile : ************", 14, y); y += 6;
+    doc.text(`Name : ${customer.name}`, 14, y);
+    y += 6;
+
+    checkPage(12);
+    doc.text(`Address : ${customer.address}`, 14, y, { maxWidth: 120 });
+    y += 10;
+
+    doc.text("Mobile : ************", 14, y);
+    y += 6;
     doc.text("GST : ************", 14, y);
 
-    // ================= TERMS =================
+    // ===== TERMS =====
     y += 12;
+    checkPage(20);
+
     doc.setFont("helvetica", "bold");
-    doc.text("Terms & Conditions", 14, y); y += 6;
+    doc.text("Terms & Conditions", 14, y);
+    y += 6;
+
     doc.setFont("helvetica", "normal");
-    terms.forEach((t, i) => {
+
+    (terms.length ? terms : ["NIL"]).forEach((t, i) => {
+      checkPage(10);
       doc.text(`${i + 1}. ${t}`, 14, y, { maxWidth: 120 });
       y += 6;
     });
 
-    // ================= FOOTER GREEN BOX =================
+    // ===== FOOTER =====
+    checkPage(30);
     y += 10;
 
     doc.setDrawColor(0, 128, 0);
-    doc.setLineWidth(1.2);
     doc.rect(14, y, 180, 26);
 
     doc.setFontSize(8);
@@ -191,7 +224,7 @@ export default function InvoiceActions({
     return doc;
   };
 
-  // ================= ACTIONS =================
+  // ================= ACTION BUTTONS =================
   const downloadPDF = () => {
     const doc = createPDF();
     doc.save(`${quotationNumber}.pdf`);
@@ -208,12 +241,7 @@ export default function InvoiceActions({
       <button onClick={saveInvoice}>Save</button>
       <button onClick={downloadPDF}>Download PDF</button>
       <button onClick={printPDF}>Print PDF</button>
-      <button
-        onClick={() => {
-          localStorage.clear();
-          window.location.reload();
-        }}
-      >
+      <button onClick={() => { localStorage.clear(); window.location.reload(); }}>
         Logout
       </button>
     </div>
