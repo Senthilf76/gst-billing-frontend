@@ -50,8 +50,8 @@ outline:none;
 }
 
 .rounded-textarea{
-width:10px;
-height:10px;
+width:100%;
+height:100%;
 padding:16px;
 border-radius:40px;
 border:2px solid #1f7a3f;
