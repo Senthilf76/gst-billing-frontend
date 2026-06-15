@@ -32,11 +32,20 @@ export default function InvoiceTable({ rows, setRows }) {
   };
 
   const updateRow = (index, field, value) => {
-    const updated = [...rows];
-    updated[index][field] = Number.isNaN(Number(value)) ? value : Number(value);
-    updated[index] = calculateRow(updated[index]);
-    setRows(updated);
+  const updated = [...rows];
+
+  updated[index] = {
+    ...updated[index],
+    [field]:
+      field === "description"
+        ? value
+        : Number(value),
   };
+
+  updated[index] = calculateRow(updated[index]);
+
+  setRows(updated);
+};
 
   const addRow = () => {
     setRows([
@@ -114,16 +123,18 @@ export default function InvoiceTable({ rows, setRows }) {
               <td>
                 <select
                   value={row.gst}
-                  onChange={(e) => updateRow(i, "gst", e.target.value)}
+                  onChange={(e) => updateRow(i, "gst", Number(e.target.value))}
                 >
-                   <option value={0}>0</option>
+                  <option value={0}>0</option>
                   <option value={9}>9%</option>
                   <option value={12}>12%</option>
                   <option value={18}>18%</option>
                 </select>
               </td>
 
-              <td>{row.gstAmount.toFixed(2)}</td>
+             <td>
+  GST:{row.gst}% | Amt:{row.gstAmount.toFixed(2)}
+</td>
               <td>{row.finalAmount.toFixed(2)}</td>
             </tr>
           ))}
