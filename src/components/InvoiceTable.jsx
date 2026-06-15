@@ -31,18 +31,23 @@ export default function InvoiceTable({ rows, setRows }) {
     };
   };
 
-  const updateRow = (index, field, value) => {
+ const updateRow = (index, field, value) => {
   const updated = [...rows];
 
-  updated[index] = {
+  const newRow = {
     ...updated[index],
-    [field]:
-      field === "description"
-        ? value
-        : Number(value),
+    [field]: field === "description" ? value : Number(value),
   };
 
-  updated[index] = calculateRow(updated[index]);
+  const totalSqft = newRow.sqft * newRow.qty;
+  const baseAmount = totalSqft * newRow.rate;
+  const gstAmount = (baseAmount * newRow.gst) / 100;
+
+  newRow.totalSqft = totalSqft;
+  newRow.gstAmount = gstAmount;
+  newRow.finalAmount = baseAmount + gstAmount;
+
+  updated[index] = newRow;
 
   setRows(updated);
 };
@@ -133,8 +138,8 @@ export default function InvoiceTable({ rows, setRows }) {
               </td>
 
              <td>
-  GST:{row.gst}% | Amt:{row.gstAmount.toFixed(2)}
-</td>
+               GST:{row.gstAmount.toFixed(2)}
+             </td>
               <td>{row.finalAmount.toFixed(2)}</td>
             </tr>
           ))}
