@@ -13,14 +13,24 @@ const [date,setDate]=useState("");
 const [buyer,setBuyer]=useState("");
 const [buyerAddress,setBuyerAddress]=useState("");
 
-const [items,setItems]=useState([
-{desc:"",sqft:0,qty:1,rate:0}
+const addRow=()=>{
+setItems([
+...items,
+{
+desc:"",
+sqft:0,
+qty:1,
+rate:0,
+gst:18
+}
 ]);
+}
+
 
 /* ================= FUNCTIONS ================= */
 
 const addRow=()=>{
-setItems([...items,{desc:"",sqft:0,qty:1,rate:0}])
+setItems([...items,{desc:"",sqft:0,qty:1,rate:0,gst:0}])
 }
 
 const updateItem=(i,field,val)=>{
@@ -31,10 +41,16 @@ setItems(arr);
 
 /* subtotal must include sqft */
 
-const subtotal = items.reduce((s,it)=>s+(it.sqft*it.qty*it.rate),0);
-const cgst=subtotal*0.09;
-const sgst=subtotal*0.09;
-const total=subtotal+cgst+sgst;
+const subtotal = items.reduce(
+(sum,it)=>sum + (it.sqft * it.qty * it.rate),0);
+
+const totalGST = items.reduce((sum,it)=>{
+const amount = it.sqft * it.qty * it.rate;
+return sum + (amount * (it.gst / 100));
+},0);
+
+const grandTotal = subtotal + totalGST;
+
 
 const downloadPDF=()=>{
 html2pdf().set({
@@ -133,7 +149,7 @@ onChange={(e)=>setBuyerAddress(e.target.value)}
 
 const totalSqft = it.sqft * it.qty;
 const amount = totalSqft * it.rate;
-const gstAmt = amount * 0.18;
+const gstAmt = amount * (it.gst / 100);
 
 return(
 <tr key={i}>
@@ -179,16 +195,20 @@ onChange={(e)=>updateItem(i,"rate",Number(e.target.value))}
 </td>
 
 <td>
-<select className="gst-select">
-<option>18%</option>
-<option>9%</option>
-<option>0%</option>
+<select
+className="gst-select"
+value={it.gst}
+onChange={(e)=>updateItem(i,"gst",Number(e.target.value))}
+>
+<option value={18}>18%</option>
+<option value={9}>9%</option>
+<option value={0}>0%</option>
 </select>
 </td>
 
 <td>{gstAmt.toFixed(2)}</td>
 
-<td>{amount.toFixed(2)}</td>
+<td>{(amount + gstAmt).toFixed(2)}</td>
 
 </tr>
 );
@@ -283,7 +303,7 @@ return(
 <td>{it.sqft.toFixed(2)}</td>
 <td>{it.qty.toFixed(2)} Nos</td>
 <td>{it.rate.toFixed(2)}</td>
-<td>18%</td>
+<td>{it.gst}%</td>
 <td>{amount.toFixed(2)}</td>
 </tr>
 )
@@ -292,18 +312,22 @@ return(
 <tr className="bigSpace"><td colSpan="8"></td></tr>
 
 <tr>
-<td colSpan="7" className="right">CGST 9%</td>
-<td>{cgst.toFixed(2)}</td>
+<td colSpan="7" className="right">Subtotal</td>
+<td>{subtotal.toFixed(2)}</td>
 </tr>
 
 <tr>
-<td colSpan="7" className="right">SGST 9%</td>
-<td>{sgst.toFixed(2)}</td>
+<td colSpan="7" className="right">GST</td>
+<td>{totalGST.toFixed(2)}</td>
 </tr>
 
 <tr>
-<td colSpan="7" className="right"><b>Total</b></td>
-<td><b>{total.toFixed(2)}</b></td>
+<td colSpan="7" className="right">
+<b>Grand Total</b>
+</td>
+<td>
+<b>{grandTotal.toFixed(2)}</b>
+</td>
 </tr>
 
 </tbody>
