@@ -13,25 +13,30 @@ const [date,setDate]=useState("");
 const [buyer,setBuyer]=useState("");
 const [buyerAddress,setBuyerAddress]=useState("");
 
-const addRow=()=>{
-setItems([
-...items,
+const [items,setItems]=useState([
 {
-desc:"",
-sqft:0,
-qty:1,
-rate:0,
-gst:18
+  desc:"",
+  sqft:0,
+  qty:1,
+  rate:0,
+  gst:18
 }
 ]);
-}
-
 
 /* ================= FUNCTIONS ================= */
 
 const addRow=()=>{
-setItems([...items,{desc:"",sqft:0,qty:1,rate:0,gst:0}])
-}
+setItems([
+  ...items,
+  {
+    desc:"",
+    sqft:0,
+    qty:1,
+    rate:0,
+    gst:18
+  }
+]);
+};
 
 const updateItem=(i,field,val)=>{
 const arr=[...items];
@@ -40,17 +45,17 @@ setItems(arr);
 }
 
 /* subtotal must include sqft */
-
 const subtotal = items.reduce(
-(sum,it)=>sum + (it.sqft * it.qty * it.rate),0);
+  (s,it)=>s+(it.sqft*it.qty*it.rate),
+  0
+);
 
-const totalGST = items.reduce((sum,it)=>{
-const amount = it.sqft * it.qty * it.rate;
-return sum + (amount * (it.gst / 100));
+const totalGST = items.reduce((s,it)=>{
+  const amount = it.sqft * it.qty * it.rate;
+  return s + (amount * it.gst / 100);
 },0);
 
-const grandTotal = subtotal + totalGST;
-
+const total = subtotal + totalGST;
 
 const downloadPDF=()=>{
 html2pdf().set({
@@ -196,19 +201,19 @@ onChange={(e)=>updateItem(i,"rate",Number(e.target.value))}
 
 <td>
 <select
-className="gst-select"
-value={it.gst}
-onChange={(e)=>updateItem(i,"gst",Number(e.target.value))}
+  className="gst-select"
+  value={it.gst}
+  onChange={(e)=>updateItem(i,"gst",Number(e.target.value))}
 >
-<option value={18}>18%</option>
-<option value={9}>9%</option>
-<option value={0}>0%</option>
+  <option value={18}>18%</option>
+  <option value={9}>9%</option>
+  <option value={0}>0%</option>
 </select>
 </td>
 
 <td>{gstAmt.toFixed(2)}</td>
 
-<td>{(amount + gstAmt).toFixed(2)}</td>
+<td>{amount.toFixed(2)}</td>
 
 </tr>
 );
@@ -285,6 +290,7 @@ State Name : Tamil Nadu
 <th>Quantity</th>
 <th>Rate</th>
 <th>GST Rate</th>
+<th>GST Amount</th>
 <th>Amount</th>
 </tr>
 </thead>
@@ -294,7 +300,7 @@ State Name : Tamil Nadu
 {items.map((it,i)=>{
 
 const amount = it.sqft * it.qty * it.rate;
-
+const gstAmt = amount * (it.gst / 100);
 return(
 <tr key={i}>
 <td>{i+1}</td>
@@ -304,7 +310,8 @@ return(
 <td>{it.qty.toFixed(2)} Nos</td>
 <td>{it.rate.toFixed(2)}</td>
 <td>{it.gst}%</td>
-<td>{amount.toFixed(2)}</td>
+<td>{gstAmt.toFixed(2)}</td>
+<td>{(amount + gstAmt).toFixed(2)}</td>
 </tr>
 )
 })}
@@ -312,21 +319,16 @@ return(
 <tr className="bigSpace"><td colSpan="8"></td></tr>
 
 <tr>
-<td colSpan="7" className="right">Subtotal</td>
-<td>{subtotal.toFixed(2)}</td>
-</tr>
-
-<tr>
-<td colSpan="7" className="right">GST</td>
+<td colSpan="8" className="right">GST Total</td>
 <td>{totalGST.toFixed(2)}</td>
 </tr>
 
 <tr>
-<td colSpan="7" className="right">
+<td colSpan="8" className="right">
 <b>Grand Total</b>
 </td>
 <td>
-<b>{grandTotal.toFixed(2)}</b>
+<b>{total.toFixed(2)}</b>
 </td>
 </tr>
 
@@ -356,5 +358,5 @@ Authorised Signatory
 </div>
 
 </div>
-)
+);
 }
