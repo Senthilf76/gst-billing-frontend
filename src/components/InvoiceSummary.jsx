@@ -9,8 +9,7 @@ export default function InvoiceSummary({ rows, setSummary }) {
   );
 
   const totalGST = rows.reduce((sum, r) => sum + r.gstAmount, 0);
-  const grandTotal = subtotal + totalGST + Number(transport);
-
+ const grandTotal = subtotal + totalGST + Number(transport);
   useEffect(() => {
     setSummary({
       subtotal,
